@@ -1,8 +1,9 @@
 import {APIGatewayEvent, APIGatewayProxyResult, Callback, Context, Handler} from 'aws-lambda';
 import {renderSigninPage} from "./google_signin/signin_page";
 import {env} from "./env";
+import {verifyGoogleToken} from "./google_signin/verify_token";
 
-export const hello: Handler = (event: APIGatewayEvent, context: Context, cb: Callback) => {
+export const hello: Handler = async (event: APIGatewayEvent, context: Context) => {
     const response: APIGatewayProxyResult = {
         statusCode: 200,
         body: JSON.stringify({
@@ -11,14 +12,14 @@ export const hello: Handler = (event: APIGatewayEvent, context: Context, cb: Cal
         }),
     };
 
-    cb(null, response);
+    return response;
 };
 
 const htmlHeaders = () => {
     return { 'Content-Type': "text/html" }
 }
 
-export const signinPage: Handler = (event: APIGatewayEvent, context: Context, cb: Callback) => {
+export const signinPage: Handler = async (event: APIGatewayEvent, context: Context) => {
     const body = renderSigninPage(env.googClientId);
     const response: APIGatewayProxyResult = {
         statusCode: 200,
@@ -26,17 +27,20 @@ export const signinPage: Handler = (event: APIGatewayEvent, context: Context, cb
         headers: htmlHeaders(),
     };
 
-    cb(null, response);
+    return response;
 }
 
 
-export const tokenSignin: Handler = (event: APIGatewayEvent, context: Context, cb: Callback) => {
-    console.log("FUUUU");
+export const tokenSignin: Handler = async (event: APIGatewayEvent, context: Context) => {
+    const tokenFromFrontend = JSON.parse(event.body)['tokenFromFrontend'];
+
+    const verifyResult = await verifyGoogleToken(tokenFromFrontend);
+
     const response: APIGatewayProxyResult = {
         statusCode: 200,
         body: "cool",
         headers: htmlHeaders(),
     };
 
-    cb(null, response);
+    return response;
 }

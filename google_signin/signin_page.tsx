@@ -38,7 +38,8 @@ export const renderSigninPage = (
                     xhr.onload = function() {
                         console.log('Signed in as: ' + xhr.responseText);
                     };
-                    xhr.send('idtoken=' + id_token);
+                    const payload = JSON.stringify({'tokenFromFrontend': id_token})
+                    xhr.send(payload);
                 }
         </script>
       </body>
